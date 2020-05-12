@@ -1,0 +1,90 @@
+﻿@model  dropdownlist.Models.userInfo
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@{ 
+    List<Province> ProvinceList = ViewBag.ListPrv;
+}
+
+<style>
+    .mrg{
+        margin-bottom:20px;
+    }
+</style>
+
+<div class="panel panel-body" style="direction:rtl;">
+    <form asp-controller="Home" asp-action="Register" method="post">
+        <!--نام-->
+        <div class="form-group">
+            <div class="col-xs-10">
+                <input asp-for="FirstName" type="text" class="form-control mrg" />
+            </div>
+            <label asp-for="FirstName" class="control-label col-xs-2"></label>
+        </div>
+        <!--نام خانوادگی-->
+        <div class="form-group">
+            <div class="col-xs-10">
+                <input asp-for="Family" type="text" class="form-control mrg" />
+            </div>
+            <label asp-for="Family" class="control-label col-xs-2"></label>
+        </div>
+        <!--استان-->
+        <div class="form-group">
+            <div class="col-xs-10">
+                <select asp-for="ProvinceID" id="sltProvince" class="form-control mrg"
+                        asp-items="@(new SelectList(ProvinceList,"ID","ProvinceName"))"></select>
+            </div>
+            <label asp-for="ProvinceID" class="control-label col-xs-2"></label>
+        </div>
+        <!--شهر-->
+        <div class="form-group hidden" id="divcity">
+            <div class="col-xs-10">
+                <select asp-for="CityID" class="form-control mrg"></select>
+            </div>
+            <label asp-for="CityID" class="control-label col-xs-2"></label>
+        </div>
+
+        <div class=" col-xs-10">
+           
+                <input type="submit" class="btn btn-success" value="ثبت نام" />
+         
+        </div>
+    </form>
+</div>
+
+
+@section Scripts{ 
+    <script>
+        $("#sltProvince").on('change', function (e) {
+            if ($("#sltProvince").prop('selectedIndex') == 0) {
+                $('#divcity').addClass('hidden');
+            }
+            else {
+                //اگر یک استان انتخاب شده بود
+                var getid = $('#sltProvince').val();
+                $.ajax({
+                    type: 'post',
+                    url: '@Url.Action("getCity","Home")',
+                    data: { id: getid },
+
+                    success: function (result) {
+                        if (result.status == "success") {
+                            $('#CityID').empty();
+
+                            $.each(result.cityList, function (i) {
+                                $('#CityID').append($("<option></option>")
+                                    .val(result.cityList[i].id).html(result.cityList[i].cname));
+
+                            });
+                        }
+                    }
+                });
+
+
+                $('#divcity').removeClass('hidden');
+            }
+        });
+    </script>
+}
